@@ -42,6 +42,9 @@ RUN make PREFIX=/usr install-bin
 
 FROM adoptopenjdk/openjdk11:jdk-11.0.7_10-alpine-slim
 
+ARG PYTHON=python3
+ENV PYTHON=${PYTHON}
+
 ARG PYTHON_DIR=/usr/lib/python3.8
 ENV PYTHON_DIR=${PYTHON_DIR}
 
@@ -57,7 +60,8 @@ RUN set -x \
  && adduser -S -s /bin/false -G scm -h ${SCM_HOME} -D -H -u 1000 scm \
  && mkdir -p ${SCM_HOME} ${CACHE_DIR} \
  && chmod +x /opt/scm-server/bin/scm-server \
- && chown scm:scm ${SCM_HOME} ${CACHE_DIR}
+ && chown scm:scm ${SCM_HOME} ${CACHE_DIR} \
+ && if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python ; fi
 
 # copy mercurial installation
 COPY --from=build /usr/bin/hg /usr/bin/hg

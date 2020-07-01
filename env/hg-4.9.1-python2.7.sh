@@ -27,63 +27,10 @@ IFS=$'\n\t'
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-echo "... starting hg-sever-spec"
+docker build -t cloudogu/hg-server-spec:4.9.1-python2.7 \
+  --build-arg PYTHON=python2 \
+  --build-arg MERCURIAL=mercurial-4.9.1 \
+  --build-arg PYTHON_DIR=/usr/lib/python2.7 \
+  "${DIR}"
 
-declare -a OPTIONS
-SCRIPTS=$(ls "$DIR/env/"*.sh)
-for SCRIPT in ${SCRIPTS}; do
-  BASENAME=$(basename $SCRIPT)
-  OPTIONS+=("${BASENAME%.sh}")
-done
-
-ENV=""
-if [ $# -ne 0 ]; then
-  if [ "env" == "$1" ]; then
-    echo "available test environments:"
-    echo ""
-    for OPTION in "${OPTIONS[@]}"; do
-      echo " - ${OPTION}"
-    done
-    exit 0
-  fi
-
-  ENV="${1}"
-fi
-
-if [ "${ENV}" == "" ]; then
-  echo ""
-  echo "choose one of the test environments:"
-  echo ""
-  select OPTION in ${OPTIONS[@]}; do
-  case "$OPTION" in
-          "")  echo "Invalid input" ;;
-          *)   ENV="${OPTION}"; break ;;
-    esac
-  done
-fi
-
-SCRIPT="$DIR/env/$ENV.sh"
-if [ ! -f "$SCRIPT" ]; then
-  echo "could not find test environment $ENV"
-  exit 1
-fi
-
-echo ""
-echo "... starting test environment ${ENV}"
-$SCRIPT > /dev/null &
-
-# remove test container on exit
-trap "docker rm -f hg-server-spec > /dev/null" EXIT
-
-# wait until test environment is started
-while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080/scm/api/v2)" != "200" ]]; do 
-  for X in '-' '/' '|' '\'; do 
-    echo -en "\b$X"; 
-    sleep 0.1; 
-  done;
-done
-
-echo -e "\r... scm-manager is ready, starting bats tests"
-echo ""
-
-bats "$DIR/spec/"*.bats
+docker run -d --name "hg-server-spec" --rm -p 8080:8080 cloudogu/hg-server-spec:4.9.1-python2.7
