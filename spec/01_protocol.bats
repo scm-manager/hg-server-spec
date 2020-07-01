@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bats
 #
 # MIT License
 #
@@ -23,36 +23,22 @@
 # SOFTWARE.
 #
 
-function random_string() {
-  cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w ${1:-32} | head -n 1
+load functions
+
+@test "should clone repository" {  
+  NAME=$(random_string 16)
+  create_repository $NAME
+  exec_hg clone http://localhost:8080/scm/repo/scmadmin/${NAME} $(workdir)
 }
 
-function create_repository() {
-  NAME="$1"
-  INITIALIZE=${2:-false}
-
-  SC=$(curl -s -X POST "http://localhost:8080/scm/api/v2/repositories?initialize=${INITIALIZE}" \
-    -u "scmadmin:scmadmin" \
-    -o /dev/stderr \
-    -H "accept: */*" \
-    -H "Content-Type: application/vnd.scmm-repository+json;v=2" \
-    -d "{\"name\":\"${NAME}\",\"type\":\"hg\"}" \
-    -w "%{http_code}")
-
-  if [ $((SC)) -eq 201 ]; then
-    return 0
-  fi
-  return $((SC))
-}
-
-function exec_hg() {
-  hg \
-    --config auth.scm.prefix=http://localhost:8080/scm \
-    --config auth.scm.username=scmadmin \
-    --config auth.scm.password=scmadmin \
-  $*
-}
-
-function workdir() {
-  echo $BATS_TMPDIR/$(random_string 8)
+@test "should push changes back to repository" {  
+  NAME=$(random_string 16)
+  create_repository $NAME
+  WORKDIR=$(workdir)
+  exec_hg clone http://localhost:8080/scm/repo/scmadmin/${NAME} ${WORKDIR}
+  cd ${WORKDIR}
+  echo a > a.txt
+  hg add a.txt
+  hg commit -m 'added a'
+  exec_hg push
 }

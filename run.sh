@@ -86,4 +86,4 @@ done
 echo -e "\r... scm-manager is ready, starting bats tests"
 echo ""
 
-bats "$DIR/spec/"*.bats
+bats "$DIR/spec/"
