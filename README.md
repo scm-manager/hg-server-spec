@@ -8,6 +8,7 @@ This repository contains [bats](https://github.com/bats-core/bats-core) tests to
 
 * [bash](https://www.gnu.org/software/bash/)
 * [curl](https://curl.haxx.se/)
+* [jq](https://stedolan.github.io/jq/)
 * [bats-core](https://github.com/bats-core/bats-core)
 * [docker](https://www.docker.com/)
 

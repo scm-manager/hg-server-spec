@@ -45,6 +45,11 @@ function create_repository() {
   return $((SC))
 }
 
+function get_repository() {
+  curl "http://localhost:8080/scm/api/v2/repositories/scmadmin/$1" \
+    -u "scmadmin:scmadmin"
+}
+
 function list_changesets() {
   NAME="$1"
   BRANCH=${2:-default}
