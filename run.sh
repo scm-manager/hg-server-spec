@@ -27,6 +27,33 @@ IFS=$'\n\t'
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+function run() {
+  SCRIPT="$DIR/env/$1.sh"
+  if [ ! -f "$SCRIPT" ]; then
+    echo "could not find test environment $ENV"
+    exit 1
+  fi
+
+  echo "... starting test environment ${ENV}"
+  $SCRIPT > /dev/null &
+
+  # remove test container on exit
+  trap "docker rm -f hg-server-spec > /dev/null" RETURN
+
+  # wait until test environment is started
+  while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080/scm/api/v2)" != "200" ]]; do 
+    for X in '-' '/' '|' '\'; do 
+      echo -en "\b$X"; 
+      sleep 0.1; 
+    done;
+  done
+
+  echo -e "\r... scm-manager is ready, starting bats tests"
+  echo ""
+
+  bats "$DIR/spec/"
+}
+
 echo "... starting hg-sever-spec"
 
 declare -a OPTIONS
@@ -35,6 +62,7 @@ for SCRIPT in ${SCRIPTS}; do
   BASENAME=$(basename $SCRIPT)
   OPTIONS+=("${BASENAME%.sh}")
 done
+OPTIONS+=("all")
 
 ENV=""
 if [ $# -ne 0 ]; then
@@ -62,28 +90,14 @@ if [ "${ENV}" == "" ]; then
   done
 fi
 
-SCRIPT="$DIR/env/$ENV.sh"
-if [ ! -f "$SCRIPT" ]; then
-  echo "could not find test environment $ENV"
-  exit 1
+echo ""
+
+if [ "${ENV}" == "all" ]; then
+  for ENV in ${OPTIONS[@]}; do
+    if [ "${ENV}" != "all" ]; then
+      run "${ENV}"
+    fi
+  done
+else
+  run "${ENV}"
 fi
-
-echo ""
-echo "... starting test environment ${ENV}"
-$SCRIPT > /dev/null &
-
-# remove test container on exit
-trap "docker rm -f hg-server-spec > /dev/null" EXIT
-
-# wait until test environment is started
-while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080/scm/api/v2)" != "200" ]]; do 
-  for X in '-' '/' '|' '\'; do 
-    echo -en "\b$X"; 
-    sleep 0.1; 
-  done;
-done
-
-echo -e "\r... scm-manager is ready, starting bats tests"
-echo ""
-
-bats "$DIR/spec/"
