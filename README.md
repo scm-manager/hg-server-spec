@@ -21,4 +21,4 @@ This step could be removed and replaced with a simple download, after the next s
 
 ## Run
 
-Just start the tests by starting the `run.sh` script.
+Just start the tests with the `run.sh` script.
