@@ -45,6 +45,41 @@ function create_repository() {
   return $((SC))
 }
 
+function list_changesets() {
+  NAME="$1"
+  BRANCH=${2:-default}
+  curl "http://localhost:8080/scm/api/v2/repositories/scmadmin/$NAME/branches/$BRANCH/changesets/" \
+    -u "scmadmin:scmadmin"
+}
+
+function get_changeset() {
+  NAME="$1"
+  NODE=${2:-tip}
+  curl "http://localhost:8080/scm/api/v2/repositories/scmadmin/$NAME/changesets/${NODE}" \
+    -u "scmadmin:scmadmin"
+}
+
+function get_changeset_diff() {
+  NAME="$1"
+  NODE=${2:-tip}
+  curl "http://localhost:8080/scm/api/v2/repositories/scmadmin/$NAME/diff/${NODE}" \
+    -u "scmadmin:scmadmin"
+}
+
+function get_content() {
+  NAME="$1"
+  NODE="$2"
+  curl "http://localhost:8080/scm/api/v2/repositories/scmadmin/$NAME/content/${NODE}/${3}" \
+    -u "scmadmin:scmadmin"
+}
+
+function get_annotations() {
+  NAME="$1"
+  NODE="$2"
+  curl "http://localhost:8080/scm/api/v2/repositories/scmadmin/$NAME/annotate/${NODE}/${3}" \
+    -u "scmadmin:scmadmin"
+}
+
 function exec_hg() {
   hg \
     --config auth.scm.prefix=http://localhost:8080/scm \
