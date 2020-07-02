@@ -60,8 +60,7 @@ RUN set -x \
  && adduser -S -s /bin/false -G scm -h ${SCM_HOME} -D -H -u 1000 scm \
  && mkdir -p ${SCM_HOME} ${CACHE_DIR} \
  && chmod +x /opt/scm-server/bin/scm-server \
- && chown scm:scm ${SCM_HOME} ${CACHE_DIR} \
- && if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python ; fi
+ && chown scm:scm ${SCM_HOME} ${CACHE_DIR}
 
 # copy mercurial installation
 COPY --from=build /usr/bin/hg /usr/bin/hg

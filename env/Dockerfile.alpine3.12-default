@@ -36,8 +36,7 @@ RUN set -x \
  && adduser -S -s /bin/false -G scm -h ${SCM_HOME} -D -H -u 1000 scm \
  && mkdir -p ${SCM_HOME} ${CACHE_DIR} \
  && chmod +x /opt/scm-server/bin/scm-server \
- && chown scm:scm ${SCM_HOME} ${CACHE_DIR} \
- && ln -s /usr/bin/python3 /usr/bin/python
+ && chown scm:scm ${SCM_HOME} ${CACHE_DIR}
 
 WORKDIR "/opt/scm-server"
 VOLUME ["${SCM_HOME}", "${CACHE_DIR}"]
