@@ -14,10 +14,8 @@ This repository contains [bats](https://github.com/bats-core/bats-core) tests to
 
 ## Prepare environment
 
-Clone the [SCM-Manager](https://github.com/scm-manager/scm-manager) checkout the `feature/support_python_3` branch.
+Clone the [SCM-Manager](https://github.com/scm-manager/scm-manager).
 Build SCM-Manager `mvn clean install -Ppackaging` and copy the `etc` and `opt` directory from `scm-packaging/docker/target/build` to `env`.
-
-This step could be removed and replaced with a simple download, after the next scm-manager release which includes the changes from `feature/support_python_3`.
 
 ## Run
 
