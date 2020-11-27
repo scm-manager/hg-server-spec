@@ -15,7 +15,7 @@ This repository contains [bats](https://github.com/bats-core/bats-core) tests to
 ## Prepare environment
 
 Clone the [SCM-Manager](https://github.com/scm-manager/scm-manager).
-Build SCM-Manager `mvn clean install -Ppackaging` and copy the `etc` and `opt` directory from `scm-packaging/docker/target/build` to `env`.
+Build SCM-Manager `mvn clean package -pl :docker -P packaging` and copy the `etc` and `opt` directory from `scm-packaging/docker/target/build` to `env`.
 
 ## Run
 
